@@ -26,7 +26,6 @@ struct Compare {
 
 void genCode(Node* node, std::string code, std::unordered_map<char, std::string>& codeMap) {
     if (node->left == nullptr && node->right == nullptr) {
-        std::cout << node->ch << ": " << code << std::endl;
         codeMap[node->ch] = code;
     }
 
@@ -75,13 +74,39 @@ int main() {
     while (input.get(c)) {
         encodedTxt = encodedTxt + codeMap[c];
     }
-    std::cout << "Encoded: " << encodedTxt << std::endl;
     unsigned char byte = 0;
     int bitCount = 0;
-    for (char bit : encodedTxt) {
+    std::ofstream output("compressed", std::ios::binary);
+    size_t uniqueChars = freqMap.size();
+    output.write(reinterpret_cast<char*>(&uniqueChars), sizeof(uniqueChars)); //*
+    for (const auto& [ch, freq] : freqMap) { //**
+        output.write(&ch, sizeof(ch));
+        output.write(
+            reinterpret_cast<const char*>(&freq),
+            sizeof(freq)
+        );
+    }
+    int ogSize = root->freq;
+    output.write(reinterpret_cast<char*>(&ogSize), sizeof(ogSize));
+
+    for (char bit : encodedTxt) { //*
         byte = byte << 1;
+
         if (bit == '1') {
             byte = byte | 1;
         }
+
+        bitCount++;
+
+        if (bitCount == 8) {
+            output.write(reinterpret_cast<char*>(&byte), 1);
+            byte = 0;
+            bitCount = 0;
+        }
     }
+    if (bitCount > 0) {
+        byte = byte << (8 - bitCount);
+        output.write(reinterpret_cast<char*>(&byte), 1);
+    }
+    output.close();
 }
