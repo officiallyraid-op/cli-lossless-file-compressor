@@ -24,6 +24,21 @@ struct Compare {
     }
 };
 
+void genCode(Node* node, std::string code, std::unordered_map<char, std::string>& codeMap) {
+    if (node->left == nullptr && node->right == nullptr) {
+        std::cout << node->ch << ": " << code << std::endl;
+        codeMap[node->ch] = code;
+    }
+
+    if (node->left != nullptr) {
+        genCode(node->left, code + "0", codeMap);
+    }
+
+    if (node->right != nullptr) {
+        genCode(node->right, code + "1", codeMap);
+    }
+}
+
 int main() {
     std::priority_queue<
         Node*,
@@ -52,4 +67,14 @@ int main() {
         minHeap.push(parent);
     }
     Node* root = minHeap.top();
+    std::unordered_map<char, std::string> codeMap;
+    genCode(root, "", codeMap);
+    input.clear();
+    input.seekg(0);
+    std::string encodedTxt;
+    while (input.get(c)) {
+        encodedTxt = encodedTxt + codeMap[c];
+    }
+    std::cout << "Encoded: " << encodedTxt << std::endl;
+    
 }
