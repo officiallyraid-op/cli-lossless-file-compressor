@@ -76,5 +76,12 @@ int main() {
         encodedTxt = encodedTxt + codeMap[c];
     }
     std::cout << "Encoded: " << encodedTxt << std::endl;
-    
+    unsigned char byte = 0;
+    int bitCount = 0;
+    for (char bit : encodedTxt) {
+        byte = byte << 1;
+        if (bit == '1') {
+            byte = byte | 1;
+        }
+    }
 }
